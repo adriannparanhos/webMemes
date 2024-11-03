@@ -19,6 +19,22 @@
         <tbody id="memeList">
         </tbody>
     </table>
+    
+    <div class="edit-meme">
+        <h2>Editar Meme</h2>
+        <form id="memeForm">
+            <label for="title">Título:</label>
+            <input type="text" id="title" placeholder="Digite o título do meme" required disabled>
+    
+            <label for="comment">Comentário (Opcional):</label>
+            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar" disabled>
+    
+            <button type="submit" id="submitMeme" style="display:none;">Salvar</button>
+            <p id="message"></p>
+        </form>
+    </div>
+    
+
     <a href="index.html" class="back-link">Voltar para Cadastro</a>
     <script src="visualizar.js"></script>
 </body>

@@ -67,3 +67,55 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+.edit-meme {
+    background-color: #f9f9f9; 
+    border: 1px solid #ccc; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-top: 20px; 
+}
+
+.edit-meme h2 {
+    font-size: 24px; 
+    color: #333; 
+    margin-bottom: 15px; 
+}
+
+.edit-meme label {
+    font-size: 16px; 
+    color: #555; 
+    display: block; 
+    margin-bottom: 5px; 
+}
+
+.edit-meme input[type="text"] {
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    box-sizing: border-box; 
+    margin-bottom: 15px; 
+    font-size: 16px; 
+}
+
+.edit-meme button[type="submit"] {
+    background-color: #28a745; 
+    color: white; 
+    border: none; 
+    border-radius: 4px; 
+    padding: 10px 15px; 
+    cursor: pointer; 
+    font-size: 16px; 
+}
+
+.edit-meme button[type="submit"]:hover {
+    background-color: #218838; 
+}
+
+.edit-meme #message {
+    color: #28a745; 
+    margin-top: 10px; 
+    font-weight: bold; 
+}
+

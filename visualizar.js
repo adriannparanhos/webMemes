@@ -1,3 +1,5 @@
+let editingIndex = null;
+
 document.addEventListener("DOMContentLoaded", () => {
     const memeList = document.getElementById("memeList");
     const memes = JSON.parse(localStorage.getItem("memes")) || [];
@@ -46,15 +48,40 @@ document.addEventListener('DOMContentLoaded', function() {
     window.editMeme = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
         const memeToEdit = memes[index];
-    
-        document.getElementById('file').value = ''; 
-        document.getElementById('type').value = memeToEdit.type;
-        document.getElementById('url').value = memeToEdit.url;
+
         document.getElementById('title').value = memeToEdit.title;
         document.getElementById('comment').value = memeToEdit.comment || '';
-    
-        memes.splice(index, 1);
-        localStorage.setItem('memes', JSON.stringify(memes));
-        loadMemes(); 
+
+        editingIndex = index; 
+
+        setEditable(true);
     };
+
+    function setEditable(editable) {
+        document.getElementById("title").disabled = !editable;
+        document.getElementById("comment").disabled = !editable;
+    
+        const submitButton = document.getElementById("submitMeme");
+        submitButton.style.display = editable ? 'inline' : 'none'; 
+    }
+
+    document.getElementById("memeForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+    
+        const title = document.getElementById("title").value;
+        const comment = document.getElementById("comment").value;
+    
+        const memes = JSON.parse(localStorage.getItem("memes")) || [];
+    
+        if (editingIndex !== null) {
+            memes[editingIndex].title = title; 
+            memes[editingIndex].comment = comment; 
+            document.getElementById("message").textContent = "Meme editado com sucesso!";
+            editingIndex = null; 
+        }
+    
+        localStorage.setItem("memes", JSON.stringify(memes));
+        loadMemes();
+        setEditable(false); 
+    });
 });
