@@ -1,23 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cadastro de Meme - webMemes</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Cadastro de Meme</h1>
+        <form id="memeForm">
+            <label for="file">Arquivo (Foto ou Vídeo):</label>
+            <input type="file" id="file" required>
 
-    <!--Precisa de uma lista para armazenar os memes-->
-    <!--Uma tela para cadastro dos memes-->
-    <!--Os memes devem estar presente em outra tela -->
+            <label for="type">Tipo:</label>
+            <select id="type" required>
+                <option value="image">Imagem</option>
+                <option value="video">Vídeo</option>
+            </select>
 
-    <!--Campos para preenchimento de incluir o meme
-        input: arquivo (foto ou video)
-        type: select/option video(value:video) ou imagem(value:image)
-        input: recebe um URL
-        input: text (titulo)
-        input: text (comentario - Não é obrigatorio)
-    -->
-    
+            <label for="url">URL:</label>
+            <input type="url" id="url" placeholder="Insira o URL do meme" required>
+
+            <label for="title">Título:</label>
+            <input type="text" id="title" placeholder="Digite o título do meme" required>
+
+            <label for="comment">Comentário (Opcional):</label>
+            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar">
+
+            <button type="submit">Cadastrar Meme</button>
+            <p id="message"></p>
+        </form>
+        <a href="visualizar.html" class="view-memes-link">Visualizar Memes Cadastrados</a>
+    </div>
+    <script src="cadastro.js"></script>
+    <script src="validaUrl.js"></script>
 </body>
 </html>
