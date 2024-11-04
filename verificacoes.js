@@ -1,7 +1,6 @@
 document.getElementById("memeForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
-    const fileInput = document.getElementById("file");
     const typeSelect = document.getElementById("type");
     const urlInput = document.getElementById("url");
     const titleInput = document.getElementById("title");

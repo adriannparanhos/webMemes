@@ -3,14 +3,16 @@ let editingIndex = null;
 document.getElementById("memeForm").addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const file = document.getElementById("file").value; 
     const type = document.getElementById("type").value;
     const url = document.getElementById("url").value;
     const title = document.getElementById("title").value;
     const comment = document.getElementById("comment").value;
+    const messageElement = document.getElementById("message");
 
-    if (!file) {
-        document.getElementById("message").textContent = "Por favor, selecione um arquivo.";
+    messageElement.style.color = "red";
+
+    if (!type) {
+        messageElement.textContent = "Selecione o tipo de meme.";
         return;
     }
 
@@ -19,8 +21,18 @@ document.getElementById("memeForm").addEventListener("submit", (e) => {
         return;
     }
 
-    if (!title) {
-        document.getElementById("message").textContent = "Por favor, digite um título.";
+    if (!isValidMediaURL(url, type)) {
+        messageElement.textContent = "A URL não corresponde ao tipo selecionado (imagem ou vídeo).";
+        return;
+    }
+
+    if (!title || title.length < 3 || title.length > 50) {
+        messageElement.textContent = "O título deve ter entre 3 e 50 caracteres.";
+        return;
+    }
+
+    if (comment.length > 200) {
+        messageElement.textContent = "O comentário não pode ter mais de 200 caracteres.";
         return;
     }
 
@@ -35,10 +47,25 @@ document.getElementById("memeForm").addEventListener("submit", (e) => {
         document.getElementById("message").textContent = "Meme cadastrado com sucesso!";
     }
 
+    messageElement.style.color = "green";
     localStorage.setItem("memes", JSON.stringify(memes));
-    loadMemes(); 
-    document.getElementById("memeForm").reset(); 
+    loadMemes();
+    document.getElementById("memeForm").reset();
 });
+
+function isValidMediaURL(url, type) {
+    const imageRegex = /\.(jpg|jpeg|png|gif|bmp|webp)$/i;
+    const videoRegex = /\.(mp4|webm|ogg|mov|avi)$/i;
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    const vimeoRegex = /^(https?:\/\/)?(www\.)?vimeo\.com\/\d+$/;
+
+    if (type === 'image') {
+        return imageRegex.test(url);
+    } else if (type === 'video') {
+        return videoRegex.test(url) || youtubeRegex.test(url) || vimeoRegex.test(url);
+    }
+    return false;
+}
 
 document.addEventListener("DOMContentLoaded", loadMemes);
 
