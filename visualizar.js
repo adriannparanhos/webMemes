@@ -38,19 +38,42 @@ function loadMemes() {
 
 function displayMemes(memesToShow) {
     const memeList = document.getElementById("memeList");
-    memeList.innerHTML = memesToShow.map((meme, index) => `
-        <tr>
-            <td><img src="${meme.url}" alt="${meme.title}" width="100"></td>
-            <td>${meme.title}</td>
-            <td>${meme.comment || '-'}</td>
-            <td><button onclick="viewComments(${(currentPage - 1) * memesPerPage + index})">Ver Comentários</button></td>
-            <td>
-                <button onclick="editMeme(${(currentPage - 1) * memesPerPage + index})">Editar</button>
-                <button onclick="deleteMeme(${(currentPage - 1) * memesPerPage + index})">Excluir</button>
-            </td>
-        </tr>
-    `).join('');
+    memeList.innerHTML = memesToShow.map((meme, index) => {
+        let mediaContent;
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/(.+)$/;
+        const vimeoRegex = /^(https?:\/\/)?(www\.)?vimeo\.com\/(\d+)$/;
+
+        if (meme.type === "video") {
+            if (youtubeRegex.test(meme.url)) {
+                const videoId = meme.url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/)[1];
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                mediaContent = `<iframe src="${embedUrl}" width="100" height="100" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else if (vimeoRegex.test(meme.url)) {
+                const videoId = meme.url.match(vimeoRegex)[3];
+                const embedUrl = `https://player.vimeo.com/video/${videoId}`;
+                mediaContent = `<iframe src="${embedUrl}" width="100" height="100" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else {
+                mediaContent = `<video width="100" controls><source src="${meme.url}" type="video/mp4">Seu navegador não suporta o elemento de vídeo.</video>`;
+            }
+        } else {
+            mediaContent = `<img src="${meme.url}" alt="${meme.title}" width="100">`;
+        }
+
+        return `
+            <tr>
+                <td>${mediaContent}</td>
+                <td>${meme.title}</td>
+                <td>${meme.comment || '-'}</td>
+                <td><button onclick="viewComments(${(currentPage - 1) * memesPerPage + index})">Ver Comentários</button></td>
+                <td>
+                    <button onclick="editMeme(${(currentPage - 1) * memesPerPage + index})">Editar</button>
+                    <button onclick="deleteMeme(${(currentPage - 1) * memesPerPage + index})">Excluir</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
+
 
 function updatePagination(totalPages) {
     document.getElementById('pageIndicator').textContent = `Página ${currentPage}`;
