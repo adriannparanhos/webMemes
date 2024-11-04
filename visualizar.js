@@ -1,5 +1,6 @@
 let editingIndex = null;
 let currentMemeIndex = null;
+let editingCommentIndex = null; 
 
 document.addEventListener("DOMContentLoaded", () => {
     const memeList = document.getElementById("memeList");
@@ -43,6 +44,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function updateCommentButtonState(comments) {
+        const submitCommentButton = document.querySelector('#commentForm button[type="submit"]');
+        if (comments.length >= 10) {
+            submitCommentButton.disabled = true; 
+            submitCommentButton.classList.add('disabled-button'); 
+        } else {
+            submitCommentButton.disabled = false; 
+            submitCommentButton.classList.remove('disabled-button'); 
+        }
+    }
+    
+
     window.viewComments = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
         currentMemeIndex = index; 
@@ -50,6 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         loadComments(meme.comments || []);
         document.getElementById('commentsPopup').style.display = 'block';
+        updateCommentButtonState(meme.comments || []); 
+
     };
 
     function loadComments(comments) {
@@ -92,27 +107,43 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const newComment = document.getElementById('newComment').value;
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
-
+    
+        if (!newComment) return; 
+    
         if (editingCommentIndex !== null) {
+            
             memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
             editingCommentIndex = null; 
+            document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário'; 
         } else {
+           
             if (!memes[currentMemeIndex].comments) {
                 memes[currentMemeIndex].comments = [];
             }
-            memes[currentMemeIndex].comments.push(newComment);
+    
+            if (memes[currentMemeIndex].comments.length < 10) { 
+                memes[currentMemeIndex].comments.push(newComment);
+            } else {
+                alert("Você já atingiu o limite máximo de 10 comentários para este meme."); 
+                return; 
+            }
         }
-
+    
         localStorage.setItem('memes', JSON.stringify(memes));
         loadComments(memes[currentMemeIndex].comments);
         document.getElementById('newComment').value = ''; 
+        updateCommentButtonState(memes[currentMemeIndex].comments); 
+
     });
+    
 
     window.deleteComment = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
         memes[currentMemeIndex].comments.splice(index, 1);
         localStorage.setItem('memes', JSON.stringify(memes));
         loadComments(memes[currentMemeIndex].comments);
+        updateCommentButtonState(memes[currentMemeIndex].comments); 
+
     };
 
     window.closeCommentsPopup = function() {
