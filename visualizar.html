@@ -22,6 +22,31 @@
     </table>
     
     <div class="edit-meme">
+
+        <div id="commentsPopup" class="popup" style="display:none;">
+            <div class="popup-content">
+                <span class="close" onclick="closeCommentsPopup()">&times;</span>
+                <h2>Comentários</h2>
+                <table id="commentsTable">
+                    <thead>
+                        <tr>
+                            <th>Comentário</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commentsList"></tbody>
+                </table>
+                <form id="commentForm">
+                    <input type="text" id="newComment" placeholder="Adicionar novo comentário" maxlength="200">
+                    <button type="submit">Adicionar Comentário</button>
+                </form>
+                <div id="editCommentSection" style="display:none;">
+                    <input type="text" id="editCommentInput" placeholder="Editar comentário" maxlength="200">
+                    <button id="saveEditButton">Salvar Edição</button>
+                </div>
+            </div>
+        </div>
+
         <h2>Editar Meme</h2>
         <form id="memeForm" novalidate>
             <label for="file">Arquivo (Foto ou Vídeo):</label>

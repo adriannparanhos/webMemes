@@ -1,4 +1,5 @@
 let editingIndex = null;
+let currentMemeIndex = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const memeList = document.getElementById("memeList");
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 document.addEventListener('DOMContentLoaded', function() {
     const memeList = document.getElementById('memeList');
+    memeList.innerHTML = '';
     loadMemes();
 
     function loadMemes() {
@@ -43,9 +45,87 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.viewComments = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        currentMemeIndex = index; 
         const meme = memes[index];
-        alert(`Comentários para ${meme.title}: ${meme.comment || 'Nenhum comentário disponível.'}`);
+
+        loadComments(meme.comments || []);
+        document.getElementById('commentsPopup').style.display = 'block';
     };
+
+    function loadComments(comments) {
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '';
+
+        comments.forEach((comment, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${comment}</td>
+                <td>
+                    <button onclick="editComment(${index})">Editar</button>
+                    <button onclick="deleteComment(${index})">Excluir</button>
+                </td>
+            `;
+            commentsList.appendChild(row);
+        });
+    }
+
+    function prepareEditComment(index) {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        const commentToEdit = memes[currentMemeIndex].comments[index];
+        
+        document.getElementById('editCommentInput').value = commentToEdit;
+        editingCommentIndex = index; 
+        document.getElementById('editCommentSection').style.display = 'block'; 
+    }
+
+    window.editComment = function(index) {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        const commentToEdit = memes[currentMemeIndex].comments[index];
+    
+        document.getElementById('editCommentInput').value = commentToEdit;
+        editingCommentIndex = index; 
+        document.getElementById('editCommentSection').style.display = 'block'; 
+    };
+
+    document.getElementById('saveEditButton').addEventListener('click', function() {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        const editedComment = document.getElementById('editCommentInput').value;
+        
+        if (editingCommentIndex !== null && currentMemeIndex !== null) {
+            memes[currentMemeIndex].comments[editingCommentIndex] = editedComment; 
+            localStorage.setItem('memes', JSON.stringify(memes));
+            loadComments(memes[currentMemeIndex].comments); 
+            document.getElementById('editCommentInput').value = ''; 
+            editingCommentIndex = null; 
+            document.getElementById('editCommentSection').style.display = 'none'; 
+        }
+    });
+
+    window.deleteComment = function(index) {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        memes[currentMemeIndex].comments.splice(index, 1);
+        localStorage.setItem('memes', JSON.stringify(memes));
+        loadComments(memes[currentMemeIndex].comments);
+    };
+
+    window.closeCommentsPopup = function() {
+        document.getElementById('commentsPopup').style.display = 'none';
+    };
+
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newComment = document.getElementById('newComment').value;
+        if (!newComment) return;
+
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        if (!memes[currentMemeIndex].comments) {
+            memes[currentMemeIndex].comments = [];
+        }
+        memes[currentMemeIndex].comments.push(newComment);
+        localStorage.setItem('memes', JSON.stringify(memes));
+        loadComments(memes[currentMemeIndex].comments);
+        document.getElementById('newComment').value = '';
+    });
 
     window.deleteMeme = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
