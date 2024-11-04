@@ -1,6 +1,9 @@
 let editingIndex = null;
 let currentMemeIndex = null;
-let editingCommentIndex = null; 
+let editingCommentIndex = null;
+
+const memesPerPage = 8;
+let currentPage = 1;
 
 document.addEventListener("DOMContentLoaded", () => {
     const memeList = document.getElementById("memeList");
@@ -17,31 +20,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    const memeList = document.getElementById('memeList');
-    memeList.innerHTML = '';
+document.addEventListener("DOMContentLoaded", () => {
+    const memeList = document.getElementById("memeList");
+    const paginationControls = document.createElement('div');
+    paginationControls.classList.add('pagination-controls');
+    paginationControls.innerHTML = `
+        <button id="prevPage" disabled>Anterior</button>
+        <span id="pageIndicator">Página 1</span>
+        <button id="nextPage">Próximo</button>
+    `;
+    document.body.appendChild(paginationControls);
+
+    document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+    document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+
     loadMemes();
+});
 
     function loadMemes() {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
-        memeList.innerHTML = '';
+        const totalPages = Math.ceil(memes.length / memesPerPage);
 
-        memes.forEach((meme, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
+        const startIndex = (currentPage - 1) * memesPerPage;
+        const endIndex = startIndex + memesPerPage;
+        const memesToShow = memes.slice(startIndex, endIndex);
+
+        displayMemes(memesToShow);
+        updatePagination(totalPages);
+    }
+
+    function displayMemes(memesToShow) {
+        memeList.innerHTML = memesToShow.map((meme, index) => `
+            <tr>
                 <td><img src="${meme.url}" alt="${meme.title}" width="100"></td>
                 <td>${meme.title}</td>
                 <td>${meme.comment || '-'}</td>
+                <td><button onclick="viewComments(${(currentPage - 1) * memesPerPage + index})">Ver Comentários</button></td>
                 <td>
-                    <button onclick="viewComments(${index})">Ver Comentários</button>
+                    <button onclick="editMeme(${(currentPage - 1) * memesPerPage + index})">Editar</button>
+                    <button onclick="deleteMeme(${(currentPage - 1) * memesPerPage + index})">Excluir</button>
                 </td>
-                <td>
-                    <button onclick="editMeme(${index})">Editar</button>
-                    <button onclick="deleteMeme(${index})">Excluir</button>
-                </td>
-            `;
-            memeList.appendChild(row);
-        });
+            </tr>
+        `).join('');
+    }
+
+    function updatePagination(totalPages) {
+        document.getElementById('pageIndicator').textContent = `Página ${currentPage}`;
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages;
+    }
+
+    function changePage(direction) {
+        currentPage += direction;
+        loadMemes();
     }
 
     function updateCommentButtonState(comments) {
@@ -169,6 +200,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
         memes.splice(index, 1);
         localStorage.setItem('memes', JSON.stringify(memes));
+        if ((currentPage - 1) * memesPerPage >= memes.length) {
+            currentPage--; 
+        }
         loadMemes();
     };
 
@@ -220,4 +254,4 @@ document.addEventListener('DOMContentLoaded', function() {
         setEditable(false); 
     });
     
-});
+

@@ -182,3 +182,19 @@ button[disabled]:hover, .disabled-button:hover {
     background-color: #ccc;
     color: #666;
 }
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.pagination-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+}
+
+.pagination-controls span {
+    font-weight: bold;
+    margin: 0 10px;
+}
