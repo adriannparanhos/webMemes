@@ -9,6 +9,21 @@ document.getElementById("memeForm").addEventListener("submit", (e) => {
     const title = document.getElementById("title").value;
     const comment = document.getElementById("comment").value;
 
+    if (!file) {
+        document.getElementById("message").textContent = "Por favor, selecione um arquivo.";
+        return;
+    }
+
+    if (!url || !/^https?:\/\//.test(url)) {
+        document.getElementById("message").textContent = "Insira uma URL válida que comece com http:// ou https://.";
+        return;
+    }
+
+    if (!title) {
+        document.getElementById("message").textContent = "Por favor, digite um título.";
+        return;
+    }
+
     const memes = JSON.parse(localStorage.getItem("memes")) || [];
 
     if (editingIndex !== null) {

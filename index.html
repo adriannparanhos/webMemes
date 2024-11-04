@@ -8,9 +8,9 @@
 <body>
     <div class="container">
         <h1>Cadastro de Meme</h1>
-        <form id="memeForm">
+        <form id="memeForm" novalidate>
             <label for="file">Arquivo (Foto ou Vídeo):</label>
-            <input type="file" id="file" required>
+            <input type="file" id="file" accept="image/*,video/*" required>
 
             <label for="type">Tipo:</label>
             <select id="type" required>
@@ -19,13 +19,13 @@
             </select>
 
             <label for="url">URL:</label>
-            <input type="url" id="url" placeholder="Insira o URL do meme" required>
+            <input type="url" id="url" placeholder="Insira o URL do meme" required pattern="https?://.+" title="Insira uma URL válida">
 
             <label for="title">Título:</label>
-            <input type="text" id="title" placeholder="Digite o título do meme" required>
+            <input type="text" id="title" placeholder="Digite o título do meme" required maxlength="50">
 
-            <label for="comment">Comentário (Opcional):</label>
-            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar">
+            <label for="comment">Descrição (Opcional):</label>
+            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar" maxlength="200">
 
             <button type="submit">Cadastrar Meme</button>
             <p id="message"></p>
@@ -34,5 +34,6 @@
     </div>
     <script src="cadastro.js"></script>
     <script src="validaUrl.js"></script>
+    <script src="verificacoes.js"></script>
 </body>
 </html>

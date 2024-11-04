@@ -22,18 +22,29 @@
     
     <div class="edit-meme">
         <h2>Editar Meme</h2>
-        <form id="memeForm">
+        <form id="memeForm" novalidate>
+            <label for="file">Arquivo (Foto ou Vídeo):</label>
+            <input type="file" id="file" accept="image/*,video/*" required disabled>
+
+            <label for="type">Tipo:</label>
+            <select id="type" required disabled>
+                <option value="image">Imagem</option>
+                <option value="video">Vídeo</option>
+            </select>
+
+            <label for="url">URL:</label>
+            <input type="url" id="url" placeholder="Insira o URL do meme" required disabled pattern="https?://.+" title="Insira uma URL válida >
+
             <label for="title">Título:</label>
-            <input type="text" id="title" placeholder="Digite o título do meme" required disabled>
-    
+            <input type="text" id="title" placeholder="Digite o título do meme" required disabled maxlength="50">
+
             <label for="comment">Comentário (Opcional):</label>
-            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar" disabled>
-    
+            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar" maxlength="200" disabled>
+
             <button type="submit" id="submitMeme" style="display:none;">Salvar</button>
             <p id="message"></p>
         </form>
     </div>
-    
 
     <a href="index.html" class="back-link">Voltar para Cadastro</a>
     <script src="visualizar.js"></script>

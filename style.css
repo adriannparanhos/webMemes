@@ -19,7 +19,7 @@ body {
 }
 
 h1 {
-    color: #333;
+    color: #9370DB; 
     margin-bottom: 20px;
     font-size: 24px;
 }
@@ -47,13 +47,13 @@ input[type="file"], input[type="url"], input[type="text"], select {
 }
 
 input[type="url"]:focus, input[type="text"]:focus, select:focus {
-    border-color: #4CAF50;
+    border-color: #0000FF; 
     outline: none;
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #FFC100; 
+    color: black;
     border: none;
     padding: 12px;
     font-size: 16px;
@@ -63,17 +63,20 @@ button {
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #9370DB; 
+    color: white;
 }
 
 .view-memes-link {
     display: inline-block;
     margin-top: 15px;
     text-decoration: none;
-    color: #4CAF50;
+    color: #9370DB; 
     font-weight: bold;
 }
 
 .view-memes-link:hover {
     text-decoration: underline;
+    color: #FFC100;
+    transition: 0.3s;
 }
