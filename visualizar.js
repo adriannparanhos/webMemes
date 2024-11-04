@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${meme.title}</td>
                 <td>${meme.comment || '-'}</td>
                 <td>
+                    <button onclick="viewComments(${index})">Ver Comentários</button>
+                </td>
+                <td>
                     <button onclick="editMeme(${index})">Editar</button>
                     <button onclick="deleteMeme(${index})">Excluir</button>
                 </td>
@@ -37,6 +40,12 @@ document.addEventListener('DOMContentLoaded', function() {
             memeList.appendChild(row);
         });
     }
+
+    window.viewComments = function(index) {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        const meme = memes[index];
+        alert(`Comentários para ${meme.title}: ${meme.comment || 'Nenhum comentário disponível.'}`);
+    };
 
     window.deleteMeme = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
