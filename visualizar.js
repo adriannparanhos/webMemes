@@ -81,24 +81,31 @@ document.addEventListener('DOMContentLoaded', function() {
     window.editComment = function(index) {
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
         const commentToEdit = memes[currentMemeIndex].comments[index];
-    
-        document.getElementById('editCommentInput').value = commentToEdit;
+        
+        document.getElementById('newComment').value = commentToEdit;
         editingCommentIndex = index; 
-        document.getElementById('editCommentSection').style.display = 'block'; 
+
+        document.querySelector('#commentForm button[type="submit"]').textContent = 'Salvar Comentário Editado';
     };
 
-    document.getElementById('saveEditButton').addEventListener('click', function() {
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newComment = document.getElementById('newComment').value;
         const memes = JSON.parse(localStorage.getItem('memes')) || [];
-        const editedComment = document.getElementById('editCommentInput').value;
-        
-        if (editingCommentIndex !== null && currentMemeIndex !== null) {
-            memes[currentMemeIndex].comments[editingCommentIndex] = editedComment; 
-            localStorage.setItem('memes', JSON.stringify(memes));
-            loadComments(memes[currentMemeIndex].comments); 
-            document.getElementById('editCommentInput').value = ''; 
+
+        if (editingCommentIndex !== null) {
+            memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
             editingCommentIndex = null; 
-            document.getElementById('editCommentSection').style.display = 'none'; 
+        } else {
+            if (!memes[currentMemeIndex].comments) {
+                memes[currentMemeIndex].comments = [];
+            }
+            memes[currentMemeIndex].comments.push(newComment);
         }
+
+        localStorage.setItem('memes', JSON.stringify(memes));
+        loadComments(memes[currentMemeIndex].comments);
+        document.getElementById('newComment').value = ''; 
     });
 
     window.deleteComment = function(index) {
