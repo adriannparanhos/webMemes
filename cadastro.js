@@ -32,7 +32,7 @@ document.getElementById("memeForm").addEventListener("submit", (e) => {
     }
 
     if (comment.length > 200) {
-        messageElement.textContent = "O comentário não pode ter mais de 200 caracteres.";
+        messageElement.textContent = "A descrição não pode ter mais de 200 caracteres.";
         return;
     }
 
