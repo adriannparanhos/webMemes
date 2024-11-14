@@ -296,8 +296,10 @@ function updateCommentButtonState(comments) {
     const submitCommentButton = document.querySelector('#commentForm button[type="submit"]');
     if (editingCommentIndex !== null || comments.length < 10) {
         submitCommentButton.disabled = false;
+        const limitComment = document.getElementById('limitMessage');
+        limitComment.textContent = "";
     } else {
-        const limitComment = document.getElementById('commentMessage');
+        const limitComment = document.getElementById('limitMessage');
         limitComment.textContent = "O máximo de comentários foi atingido!";
         limitComment.style.color = "blue";
         submitCommentButton.disabled = true;
