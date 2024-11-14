@@ -25,19 +25,15 @@ function setupPaginationControls() {
 }
 
 function loadMemes() {
-    fetch('http://localhost:3000/memes')
-        .then(response => response.json())
-        .then(memes => {
-            const totalPages = Math.ceil(memes.length / memesPerPage);
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    const totalPages = Math.ceil(memes.length / memesPerPage);
 
-            const startIndex = (currentPage - 1) * memesPerPage;
-            const endIndex = startIndex + memesPerPage;
-            const memesToShow = memes.slice(startIndex, endIndex);
+    const startIndex = (currentPage - 1) * memesPerPage;
+    const endIndex = startIndex + memesPerPage;
+    const memesToShow = memes.slice(startIndex, endIndex);
 
-            displayMemes(memesToShow);
-            updatePagination(totalPages);
-        })
-        .catch(error => console.error('Erro ao carregar memes:', error));
+    displayMemes(memesToShow);
+    updatePagination(totalPages);
 }
 
 function displayMemes(memesToShow) {
@@ -68,10 +64,10 @@ function displayMemes(memesToShow) {
                 <td>${mediaContent}</td>
                 <td>${meme.title}</td>
                 <td>${meme.comment || '-'}</td>
-                <td><button onclick="viewComments(${index})">Ver Comentários</button></td>
+                <td><button onclick="viewComments(${(currentPage - 1) * memesPerPage + index})">Ver Comentários</button></td>
                 <td>
-                    <button onclick="editMeme(${index})">Editar</button>
-                    <button onclick="deleteMeme(${meme.id})">Excluir</button>
+                    <button onclick="editMeme(${(currentPage - 1) * memesPerPage + index})">Editar</button>
+                    <button onclick="deleteMeme(${(currentPage - 1) * memesPerPage + index})">Excluir</button>
                 </td>
             </tr>
         `;
@@ -106,7 +102,7 @@ function loadComments(comments) {
     comments.forEach((comment, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${comment.content}</td>
+            <td>${comment}</td>
             <td>
                 <button onclick="editComment(${index})">Editar</button>
                 <button onclick="deleteComment(${index})">Excluir</button>
@@ -136,6 +132,9 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
 
     if (editingCommentIndex !== null) {
         memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
+        const deleteMessage = document.getElementById('commentMessage');
+        deleteMessage.textContent = "Comentário editado com sucesso!";
+        deleteMessage.style.color = "green";
         editingCommentIndex = null;
         document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário';
     } else {
@@ -145,6 +144,9 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
 
         if (memes[currentMemeIndex].comments.length < 10) {
             memes[currentMemeIndex].comments.push(newComment);
+            const deleteMessage = document.getElementById('commentMessage');
+            deleteMessage.textContent = "Comentário adicionado com sucesso!";
+            deleteMessage.style.color = "green";
         } else {
             alert("Máximo de 10 comentários atingido.");
         }
@@ -157,11 +159,21 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
 });
 
 window.deleteComment = function(index) {
-    const memes = JSON.parse(localStorage.getItem('memes')) || [];
-    memes[currentMemeIndex].comments.splice(index, 1);
-    localStorage.setItem('memes', JSON.stringify(memes));
-    loadComments(memes[currentMemeIndex].comments);
-    updateCommentButtonState(memes[currentMemeIndex].comments);
+    try {
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        memes[currentMemeIndex].comments.splice(index, 1);
+        localStorage.setItem('memes', JSON.stringify(memes));
+        loadComments(memes[currentMemeIndex].comments);
+        updateCommentButtonState(memes[currentMemeIndex].comments);
+        const deleteMessage = document.getElementById('commentMessage');
+        deleteMessage.textContent = "Comentário deletado com sucesso!";
+        deleteMessage.style.color = "green";
+    }catch (error) {
+        const deleteMessage = document.getElementById('commentMessage');
+        deleteMessage.textContent = "Erro ao deletar o comentário: " + error.message;
+        deleteMessage.style.color = "red";
+    }
+
 };
 
 window.closeCommentsPopup = function() {
@@ -247,13 +259,24 @@ document.getElementById('memeForm').addEventListener('submit', function(e) {
 });
 
 window.deleteMeme = function(index) {
-    const memes = JSON.parse(localStorage.getItem('memes')) || [];
-    memes.splice(index, 1);
-    localStorage.setItem('memes', JSON.stringify(memes));
-    if ((currentPage - 1) * memesPerPage >= memes.length) {
-        currentPage--;
+    try{
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
+        memes.splice(index, 1);
+        localStorage.setItem('memes', JSON.stringify(memes));
+        if ((currentPage - 1) * memesPerPage >= memes.length) {
+            currentPage--;
+        }
+        loadMemes();
+        const deleteMessage = document.getElementById('deleteMessage');
+        deleteMessage.textContent = "Meme deletado com sucesso!";
+        deleteMessage.style.color = "green";
+
+
+    } catch (error) {
+        const deleteMessage = document.getElementById('deleteMessage');
+        deleteMessage.textContent = "Erro ao deletar o meme: " + error.message;
+        deleteMessage.style.color = "red";
     }
-    loadMemes();
 };
 
 function updateCommentButtonState(comments) {
