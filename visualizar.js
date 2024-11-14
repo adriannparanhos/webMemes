@@ -124,38 +124,45 @@ window.editComment = function(index) {
 };
 
 document.getElementById('commentForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const newComment = document.getElementById('newComment').value;
-    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    try{
+        e.preventDefault();
+        const newComment = document.getElementById('newComment').value;
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
 
-    if (!newComment) return;
+        if (!newComment) return;
 
-    if (editingCommentIndex !== null) {
-        memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
-        const deleteMessage = document.getElementById('commentMessage');
-        deleteMessage.textContent = "Comentário editado com sucesso!";
-        deleteMessage.style.color = "green";
-        editingCommentIndex = null;
-        document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário';
-    } else {
-        if (!memes[currentMemeIndex].comments) {
-            memes[currentMemeIndex].comments = [];
-        }
-
-        if (memes[currentMemeIndex].comments.length < 10) {
-            memes[currentMemeIndex].comments.push(newComment);
+        if (editingCommentIndex !== null) {
+            memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
             const deleteMessage = document.getElementById('commentMessage');
-            deleteMessage.textContent = "Comentário adicionado com sucesso!";
+            deleteMessage.textContent = "Comentário editado com sucesso!";
             deleteMessage.style.color = "green";
+            editingCommentIndex = null;
+            document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário';
         } else {
-            alert("Máximo de 10 comentários atingido.");
+            if (!memes[currentMemeIndex].comments) {
+                memes[currentMemeIndex].comments = [];
+            }
+
+            if (memes[currentMemeIndex].comments.length < 10) {
+                memes[currentMemeIndex].comments.push(newComment);
+                const deleteMessage = document.getElementById('commentMessage');
+                deleteMessage.textContent = "Comentário adicionado com sucesso!";
+                deleteMessage.style.color = "green";
+            } else {
+                alert("Máximo de 10 comentários atingido.");
+            }
         }
+
+        localStorage.setItem('memes', JSON.stringify(memes));
+        loadComments(memes[currentMemeIndex].comments);
+        document.getElementById('newComment').value = '';
+        updateCommentButtonState(memes[currentMemeIndex].comments);
+    }catch (error){
+        const deleteMessage = document.getElementById('commentMessage');
+        deleteMessage.textContent = "Erro ao editar ou adicionar o comentário: " + error.message;
+        deleteMessage.style.color = "red";
     }
 
-    localStorage.setItem('memes', JSON.stringify(memes));
-    loadComments(memes[currentMemeIndex].comments);
-    document.getElementById('newComment').value = '';
-    updateCommentButtonState(memes[currentMemeIndex].comments);
 });
 
 window.deleteComment = function(index) {
@@ -201,61 +208,67 @@ window.editMeme = function(index) {
 };
 
 document.getElementById('memeForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    try{e.preventDefault();
+        const memes = JSON.parse(localStorage.getItem('memes')) || [];
 
-    const type = document.getElementById('type').value;
-    const url = document.getElementById('url').value.trim();
-    const title = document.getElementById('title').value.trim();
-    const comment = document.getElementById('comment').value.trim();
-    const messageElement = document.getElementById('message');
+        const type = document.getElementById('type').value;
+        const url = document.getElementById('url').value.trim();
+        const title = document.getElementById('title').value.trim();
+        const comment = document.getElementById('comment').value.trim();
+        const messageElement = document.getElementById('message');
 
-    if (!type) {
-        messageElement.textContent = "Selecione o tipo de meme.";
+        if (!type) {
+            messageElement.textContent = "Selecione o tipo de meme.";
+            messageElement.style.color = "red";
+            return;
+        }
+
+        if (!isValidMediaURL(url, type)) {
+            messageElement.textContent = "A URL não corresponde ao tipo selecionado (imagem ou vídeo).";
+            messageElement.style.color = "red";
+            return;
+        }
+
+        if (!title || title.length < 3 || title.length > 50) {
+            messageElement.textContent = "O título deve ter entre 3 e 50 caracteres.";
+            messageElement.style.color = "red";
+            return;
+        }
+
+        if (comment.length > 200) {
+            messageElement.textContent = "A descrição não pode ter mais de 200 caracteres.";
+            messageElement.style.color = "red";
+            return;
+        }
+
+        if (editingIndex !== null) {
+            memes[editingIndex].title = title;
+            memes[editingIndex].comment = comment;
+            memes[editingIndex].url = url;
+            memes[editingIndex].type = type;
+
+            editingIndex = null;
+            messageElement.textContent = "Meme editado com sucesso!";
+            messageElement.style.color = "green";
+        }
+
+        localStorage.setItem('memes', JSON.stringify(memes));
+
+        document.getElementById('title').value = '';
+        document.getElementById('comment').value = '';
+        document.getElementById('url').value = '';
+
+        document.getElementById('url').disabled = true;
+        document.getElementById('title').disabled = true;
+        document.getElementById('comment').disabled = true;
+
+        loadMemes();
+    }catch (error){
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = "Erro ao editar o meme: " + error.message;
         messageElement.style.color = "red";
-        return;
     }
 
-    if (!isValidMediaURL(url, type)) {
-        messageElement.textContent = "A URL não corresponde ao tipo selecionado (imagem ou vídeo).";
-        messageElement.style.color = "red";
-        return;
-    }
-
-    if (!title || title.length < 3 || title.length > 50) {
-        messageElement.textContent = "O título deve ter entre 3 e 50 caracteres.";
-        messageElement.style.color = "red";
-        return;
-    }
-
-    if (comment.length > 200) {
-        messageElement.textContent = "A descrição não pode ter mais de 200 caracteres.";
-        messageElement.style.color = "red";
-        return;
-    }
-
-    if (editingIndex !== null) {
-        memes[editingIndex].title = title;
-        memes[editingIndex].comment = comment;
-        memes[editingIndex].url = url;
-        memes[editingIndex].type = type;
-
-        editingIndex = null;
-        messageElement.textContent = "Meme editado com sucesso!";
-        messageElement.style.color = "green";
-    }
-
-    localStorage.setItem('memes', JSON.stringify(memes));
-
-    document.getElementById('title').value = '';
-    document.getElementById('comment').value = '';
-    document.getElementById('url').value = '';
-
-    document.getElementById('url').disabled = true;
-    document.getElementById('title').disabled = true;
-    document.getElementById('comment').disabled = true;
-
-    loadMemes();
 });
 
 window.deleteMeme = function(index) {
