@@ -37,13 +37,19 @@ tr:hover {
     transition: 0.1s;
 }
 
-img {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: cover;
+img{
+    max-width: 45%;
     border-radius: 8px;
+    min-height: 100px;
+    min-width: 100px;
 }
 
+iframe{
+    max-width: 45%;
+    border-radius: 8px;
+    min-height: 100px;
+    min-width: 100px;
+}
 .back-link {
     margin-top: 20px;
     color: #9370DB; 
@@ -76,7 +82,8 @@ button:hover {
     border: 1px solid #ccc; 
     border-radius: 8px; 
     padding: 20px; 
-    margin-top: 20px; 
+    margin-top: 20px;
+    width: 40%;
 }
 
 .edit-meme h2 {
@@ -86,7 +93,7 @@ button:hover {
 }
 
 .edit-meme label {
-    font-size: 16px; 
+    font-size: 16px;
     font-weight: bold;
     color: #555; 
     display: block; 
@@ -97,7 +104,7 @@ button:hover {
 .edit-meme input[type="url"],
 .edit-meme input[type="file"],
 .edit-meme select {
-    width: 100%; 
+    width: 100%;
     padding: 10px; 
     border: 1px solid #9370DB; 
     border-radius: 4px; 
@@ -198,3 +205,4 @@ button[disabled]:hover, .disabled-button:hover {
     font-weight: bold;
     margin: 0 10px;
 }
+

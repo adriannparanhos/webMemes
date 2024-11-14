@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Cadastro de Meme - webMemes</title>
@@ -9,7 +9,7 @@
     <div class="container">
         <h1>Cadastro de Meme</h1>
         <form id="memeForm" novalidate>
-        
+
             <label for="type">Tipo:</label>
             <select id="type" required>
                 <option value="image">Imagem</option>
@@ -23,12 +23,16 @@
             <input type="text" id="title" placeholder="Digite o título do meme" required maxlength="50">
 
             <label for="comment">Descrição (Opcional):</label>
-            <input type="text" id="comment" placeholder="Adicione um comentário, se desejar" maxlength="200">
+            <input type="text" id="comment" placeholder="Adicione um descrição, se desejar" maxlength="200">
 
             <button type="submit">Cadastrar Meme</button>
             <p id="message"></p>
         </form>
         <a href="visualizar.html" class="view-memes-link">Visualizar Memes Cadastrados</a>
+    </div>
+    <div class="image-container">
+        <img class="image1" src="Example%201.PNG"/>
+        <img class="image2" src="Example%202.png"/>
     </div>
     <script src="cadastro.js"></script>
     <script src="validaUrl.js"></script>

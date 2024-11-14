@@ -51,20 +51,20 @@ function displayMemes(memesToShow) {
             if (youtubeRegex.test(meme.url)) {
                 const videoId = meme.url.match(/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/)[1];
                 const embedUrl = `https://www.youtube.com/embed/${videoId}`;
-                mediaContent = `<iframe src="${embedUrl}" width="100" height="100" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                mediaContent = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             } else if (vimeoRegex.test(meme.url)) {
                 const videoId = meme.url.match(vimeoRegex)[3];
                 const embedUrl = `https://player.vimeo.com/video/${videoId}`;
-                mediaContent = `<iframe src="${embedUrl}" width="100" height="100" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+                mediaContent = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             } else {
-                mediaContent = `<video width="100" controls><source src="${meme.url}" type="video/mp4">Seu navegador não suporta o elemento de vídeo.</video>`;
+                mediaContent = `<video controls><source src="${meme.url}" type="video/mp4">Seu navegador não suporta o elemento de vídeo.</video>`;
             }
         } else {
-            mediaContent = `<img src="${meme.url}" alt="${meme.title}" width="100">`;
+            mediaContent = `<img src="${meme.url}" alt="${meme.title}">`;
         }
 
         return `
-            <tr>
+            <tr onclick="displayMedia(${(currentPage - 1) * memesPerPage + index})">
                 <td>${mediaContent}</td>
                 <td>${meme.title}</td>
                 <td>${meme.comment || '-'}</td>
@@ -89,25 +89,14 @@ function changePage(direction) {
     loadMemes();
 }
 
-function updateCommentButtonState(comments) {
-    const submitCommentButton = document.querySelector('#commentForm button[type="submit"]');
-    if (editingCommentIndex !== null || comments.length < 10) {
-        submitCommentButton.disabled = false;
-    } else {
-        submitCommentButton.disabled = true;
-    }
-}
-
 window.viewComments = function(index) {
-    fetch(`http://localhost:3000/memes/${index + 1}/comments`)
-        .then(response => response.json())
-        .then(comments => {
-            currentMemeIndex = index;
-            loadComments(comments);
-            document.getElementById('commentsPopup').style.display = 'block';
-            updateCommentButtonState(comments);
-        })
-        .catch(error => console.error('Erro ao carregar comentários:', error));
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    currentMemeIndex = index;
+    const meme = memes[index];
+
+    loadComments(meme.comments || []);
+    document.getElementById('commentsPopup').style.display = 'block';
+    updateCommentButtonState(meme.comments || []);
 };
 
 function loadComments(comments) {
@@ -128,64 +117,51 @@ function loadComments(comments) {
 }
 
 window.editComment = function(index) {
-    const commentToEdit = document.getElementById('commentsList').rows[index].cells[0].textContent;
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    const commentToEdit = memes[currentMemeIndex].comments[index];
+
     document.getElementById('newComment').value = commentToEdit;
     editingCommentIndex = index;
 
     document.querySelector('#commentForm button[type="submit"]').textContent = 'Salvar Comentário Editado';
-    updateCommentButtonState([commentToEdit]);
+    updateCommentButtonState(memes[currentMemeIndex].comments);
 };
 
 document.getElementById('commentForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const newComment = document.getElementById('newComment').value;
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
 
     if (!newComment) return;
 
-    const memeId = currentMemeIndex + 1;
-    const comment = {
-        content: newComment,
-        memeId: memeId
-    };
-
     if (editingCommentIndex !== null) {
-        // Edit comment
-        fetch(`http://localhost:3000/memes/${memeId}/comments/${editingCommentIndex + 1}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(comment)
-        })
-        .then(response => response.json())
-        .then(() => {
-            loadComments();
-            document.getElementById('newComment').value = '';
-        })
-        .catch(error => console.error('Erro ao editar comentário:', error));
+        memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
+        editingCommentIndex = null;
+        document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário';
     } else {
-        // Add new comment
-        fetch(`http://localhost:3000/memes/${memeId}/comments`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(comment)
-        })
-        .then(response => response.json())
-        .then(() => {
-            loadComments();
-            document.getElementById('newComment').value = '';
-        })
-        .catch(error => console.error('Erro ao adicionar comentário:', error));
+        if (!memes[currentMemeIndex].comments) {
+            memes[currentMemeIndex].comments = [];
+        }
+
+        if (memes[currentMemeIndex].comments.length < 10) {
+            memes[currentMemeIndex].comments.push(newComment);
+        } else {
+            alert("Máximo de 10 comentários atingido.");
+        }
     }
+
+    localStorage.setItem('memes', JSON.stringify(memes));
+    loadComments(memes[currentMemeIndex].comments);
+    document.getElementById('newComment').value = '';
+    updateCommentButtonState(memes[currentMemeIndex].comments);
 });
 
 window.deleteComment = function(index) {
-    fetch(`http://localhost:3000/memes/${currentMemeIndex + 1}/comments/${index + 1}`, {
-        method: 'DELETE',
-    })
-    .then(response => response.json())
-    .then(() => {
-        loadComments();
-    })
-    .catch(error => console.error('Erro ao excluir comentário:', error));
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    memes[currentMemeIndex].comments.splice(index, 1);
+    localStorage.setItem('memes', JSON.stringify(memes));
+    loadComments(memes[currentMemeIndex].comments);
+    updateCommentButtonState(memes[currentMemeIndex].comments);
 };
 
 window.closeCommentsPopup = function() {
@@ -193,70 +169,112 @@ window.closeCommentsPopup = function() {
 };
 
 window.editMeme = function(index) {
-    fetch(`http://localhost:3000/memes/${index + 1}`)
-        .then(response => response.json())
-        .then(meme => {
-            document.getElementById('title').value = meme.title;
-            document.getElementById('comment').value = meme.description || '';
-            document.getElementById('url').value = meme.url;
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    const memeToEdit = memes[index];
 
-            document.getElementById('url').disabled = false;
-            document.getElementById('title').disabled = false;
-            document.getElementById('comment').disabled = false;
+    document.getElementById('type').value = memeToEdit.type;
+    document.getElementById('url').value = memeToEdit.url;
+    document.getElementById('title').value = memeToEdit.title;
+    document.getElementById('comment').value = memeToEdit.comment || '';
 
-            document.getElementById('submitMeme').style.display = 'block';
+    document.getElementById('url').disabled = false;
+    document.getElementById('title').disabled = false;
+    document.getElementById('comment').disabled = false;
+    document.getElementById('type').disabled = false;
 
-            editingIndex = index;
-        })
-        .catch(error => console.error('Erro ao carregar meme para edição:', error));
+    document.getElementById('submitMeme').style.display = 'block';
+    document.getElementById('submitMeme').disabled = false;
+
+    editingIndex = index;
 };
 
 document.getElementById('memeForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const meme = {
-        title: document.getElementById('title').value,
-        description: document.getElementById('comment').value,
-        url: document.getElementById('url').value
-    };
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+
+    const type = document.getElementById('type').value;
+    const url = document.getElementById('url').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const comment = document.getElementById('comment').value.trim();
+    const messageElement = document.getElementById('message');
+
+    if (!type) {
+        messageElement.textContent = "Selecione o tipo de meme.";
+        messageElement.style.color = "red";
+        return;
+    }
+
+    if (!isValidMediaURL(url, type)) {
+        messageElement.textContent = "A URL não corresponde ao tipo selecionado (imagem ou vídeo).";
+        messageElement.style.color = "red";
+        return;
+    }
+
+    if (!title || title.length < 3 || title.length > 50) {
+        messageElement.textContent = "O título deve ter entre 3 e 50 caracteres.";
+        messageElement.style.color = "red";
+        return;
+    }
+
+    if (comment.length > 200) {
+        messageElement.textContent = "A descrição não pode ter mais de 200 caracteres.";
+        messageElement.style.color = "red";
+        return;
+    }
 
     if (editingIndex !== null) {
-        fetch(`http://localhost:3000/memes/${editingIndex + 1}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(meme)
-        })
-        .then(response => response.json())
-        .then(() => {
-            loadMemes();
-            document.getElementById('title').value = '';
-            document.getElementById('comment').value = '';
-            document.getElementById('url').value = '';
-        })
-        .catch(error => console.error('Erro ao editar meme:', error));
-    } else {
-        fetch('http://localhost:3000/memes', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(meme)
-        })
-        .then(response => response.json())
-        .then(() => {
-            loadMemes();
-            document.getElementById('title').value = '';
-            document.getElementById('comment').value = '';
-            document.getElementById('url').value = '';
-        })
-        .catch(error => console.error('Erro ao adicionar meme:', error));
+        memes[editingIndex].title = title;
+        memes[editingIndex].comment = comment;
+        memes[editingIndex].url = url;
+        memes[editingIndex].type = type;
+
+        editingIndex = null;
+        messageElement.textContent = "Meme editado com sucesso!";
+        messageElement.style.color = "green";
     }
+
+    localStorage.setItem('memes', JSON.stringify(memes));
+
+    document.getElementById('title').value = '';
+    document.getElementById('comment').value = '';
+    document.getElementById('url').value = '';
+
+    document.getElementById('url').disabled = true;
+    document.getElementById('title').disabled = true;
+    document.getElementById('comment').disabled = true;
+
+    loadMemes();
 });
 
-window.deleteMeme = function(id) {
-    fetch(`http://localhost:3000/memes/${id}`, {
-        method: 'DELETE',
-    })
-    .then(response => response.json())
-    .then(() => {
-        loadMemes();
-    })
-    .catch(error => console.error('Erro ao excluir meme:', error));
+window.deleteMeme = function(index) {
+    const memes = JSON.parse(localStorage.getItem('memes')) || [];
+    memes.splice(index, 1);
+    localStorage.setItem('memes', JSON.stringify(memes));
+    if ((currentPage - 1) * memesPerPage >= memes.length) {
+        currentPage--;
+    }
+    loadMemes();
 };
+
+function updateCommentButtonState(comments) {
+    const submitCommentButton = document.querySelector('#commentForm button[type="submit"]');
+    if (editingCommentIndex !== null || comments.length < 10) {
+        submitCommentButton.disabled = false;
+    } else {
+        submitCommentButton.disabled = true;
+    }
+}
+
+function isValidMediaURL(url, type) {
+    const imageRegex = /\.(jpg|jpeg|png|gif|bmp|webp)$/i;
+    const videoRegex = /\.(mp4|webm|ogg|mov|avi)$/i;
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+    const vimeoRegex = /^(https?:\/\/)?(www\.)?vimeo\.com\/\d+$/;
+
+    if (type === 'image') {
+        return imageRegex.test(url) || /wp-content|media|images/.test(url);
+    } else if (type === 'video') {
+        return videoRegex.test(url) || youtubeRegex.test(url) || vimeoRegex.test(url);
+    }
+    return false;
+}
