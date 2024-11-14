@@ -133,9 +133,9 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
 
         if (editingCommentIndex !== null) {
             memes[currentMemeIndex].comments[editingCommentIndex] = newComment;
-            const deleteMessage = document.getElementById('commentMessage');
-            deleteMessage.textContent = "Comentário editado com sucesso!";
-            deleteMessage.style.color = "green";
+            const editComment = document.getElementById('commentMessage');
+            editComment.textContent = "Comentário editado com sucesso!";
+            editComment.style.color = "green";
             editingCommentIndex = null;
             document.querySelector('#commentForm button[type="submit"]').textContent = 'Adicionar Comentário';
         } else {
@@ -145,9 +145,9 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
 
             if (memes[currentMemeIndex].comments.length < 10) {
                 memes[currentMemeIndex].comments.push(newComment);
-                const deleteMessage = document.getElementById('commentMessage');
-                deleteMessage.textContent = "Comentário adicionado com sucesso!";
-                deleteMessage.style.color = "green";
+                const addMessage = document.getElementById('commentMessage');
+                addMessage.textContent = "Comentário adicionado com sucesso!";
+                addMessage.style.color = "green";
             } else {
                 alert("Máximo de 10 comentários atingido.");
             }
@@ -158,9 +158,9 @@ document.getElementById('commentForm').addEventListener('submit', function(e) {
         document.getElementById('newComment').value = '';
         updateCommentButtonState(memes[currentMemeIndex].comments);
     }catch (error){
-        const deleteMessage = document.getElementById('commentMessage');
-        deleteMessage.textContent = "Erro ao editar ou adicionar o comentário: " + error.message;
-        deleteMessage.style.color = "red";
+        const editMessage = document.getElementById('commentMessage');
+        editMessage.textContent = "Erro ao editar ou adicionar o comentário: " + error.message;
+        editMessage.style.color = "red";
     }
 
 });
@@ -297,6 +297,9 @@ function updateCommentButtonState(comments) {
     if (editingCommentIndex !== null || comments.length < 10) {
         submitCommentButton.disabled = false;
     } else {
+        const limitComment = document.getElementById('commentMessage');
+        limitComment.textContent = "O máximo de comentários foi atingido!";
+        limitComment.style.color = "blue";
         submitCommentButton.disabled = true;
     }
 }
